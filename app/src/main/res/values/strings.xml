@@ -4,4 +4,8 @@
     <string name="button_url">Open URL</string>
     <string name="button_launch">Launch Detail Activity</string>
     <string name="textview_message">Message</string>
+    <string name="action_search">Search</string>
+    <string name="action_sort">Sort</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_value">Value</string>
 </resources>
