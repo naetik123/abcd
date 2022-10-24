@@ -13,7 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
 
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import au.edu.unsw.infs3634.cryptoprofile.api.Coin;
+import au.edu.unsw.infs3634.cryptoprofile.api.CoinLoreResponse;
 import au.edu.unsw.infs3634.cryptoprofile.recyclerview_adapter.CoinAdapter;
 import au.edu.unsw.infs3634.cryptoprofile.recyclerview_adapter.RecyclerViewInterface;
 
@@ -35,8 +41,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewInter
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+        // Implement Gson library to convert JSON string to Java object
+        Gson gson = new Gson();
+        CoinLoreResponse response = gson.fromJson(CoinLoreResponse.jsonString, CoinLoreResponse.class);
+        List<Coin> coins = response.getData();
+
         // instantiate the adapter and pass on the list of coins
-        adapter = new CoinAdapter(Coin.getCoins(), this);
+        adapter = new CoinAdapter((ArrayList<Coin>) coins, this);
 
         // connect the adapter to the recycler view
         recyclerView.setAdapter(adapter);
