@@ -186,18 +186,4 @@ public class Coin {
         this.msupply = msupply;
     }
 
-    public static Coin findCoin(String symbol) {
-        // Implement Gson library to convert JSON string to Java object
-        Gson gson = new Gson();
-        CoinLoreResponse response = gson.fromJson(CoinLoreResponse.jsonString, CoinLoreResponse.class);
-        List<Coin> coins = response.getData();
-
-        for(final Coin coin : coins) {
-            if(coin.getSymbol().toLowerCase().equals(symbol.toLowerCase())) {
-                return coin;
-            }
-        }
-        return null;
-    }
-
 }
