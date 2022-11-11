@@ -1,13 +1,13 @@
 package au.edu.unsw.infs3634.cryptoprofile;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,7 +15,9 @@ import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
+import au.edu.unsw.infs3634.cryptoprofile.DB.CoinDatabase;
 import au.edu.unsw.infs3634.cryptoprofile.api.Coin;
 import au.edu.unsw.infs3634.cryptoprofile.api.CoinService;
 import retrofit2.Call;
@@ -36,6 +38,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mMarketcap;
     private TextView mVolume;
     private ImageView mSearch, mArt;
+    private CoinDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,56 +60,54 @@ public class DetailActivity extends AppCompatActivity {
         // Get the intent that started this activity and extract the string
         Intent intent = getIntent();
         if (intent.hasExtra(INTENT_MESSAGE)) {
-            String message = intent.getStringExtra(INTENT_MESSAGE);
-            Log.d(TAG, "Intent Message = " + message);
-            // Implement Retrofit to make API call
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://api.coinlore.net")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            // Create object to make API call
-            CoinService service = retrofit.create(CoinService.class);
-            Call<ArrayList<Coin>> responseCall = service.getCoin(Integer.valueOf(message));
-            responseCall.enqueue(new Callback<ArrayList<Coin>>() {
-                @Override
-                public void onResponse(Call<ArrayList<Coin>> call, Response<ArrayList<Coin>> response) {
-                    Log.d(TAG, "API Call Successful!" + " URL="+call.request().url().toString());
-                    Coin coin = response.body().get(0);
-                    if(coin != null) {
-                        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                        setTitle(coin.getName());
-                        Glide.with(DetailActivity.this)
-                                .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
-                                .fitCenter()
-                                .into(mArt);
-                        mName.setText(coin.getName());
-                        mSymbol.setText(coin.getSymbol());
-                        mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
-                        mChange1h.setText(coin.getPercentChange1h() + " %");
-                        mChange24h.setText(coin.getPercentChange24h() + " %");
-                        mChange7d.setText(coin.getPercentChange7d() + " %");
-                        mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
-                        mVolume.setText(formatter.format(coin.getVolume24()));
-                        mSearch.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                searchCoin(coin.getName());
-                            }
-                        });
-                    }
-                }
+            String coinSymbol = intent.getStringExtra(INTENT_MESSAGE);
+            Log.d(TAG, "Intent Message = " + coinSymbol);
 
+            // Instantiate a CountryDatabase object for "country-database"
+            mDb = Room.databaseBuilder(getApplicationContext(), CoinDatabase.class, "coin-database").build();
+
+            // Create an asynchronous database call using Java Runnable to:
+            // Select the coin from the database by coin symbol received from MainActivity
+            // Update activity_detail with the coin details
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
-                public void onFailure(Call<ArrayList<Coin>> call, Throwable t) {
-                    Log.d(TAG, "API Call Failure." + " URL="+call.request().url().toString());
+                public void run() {
+                    Coin coin = mDb.coinDao().getCoin(coinSymbol);
+                    NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                            setTitle(coin.getName());
+                            mName.setText(coin.getName());
+                            Glide.with(DetailActivity.this)
+                                    .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
+                                    .fitCenter()
+                                    .into(mArt);
+                            mSymbol.setText(coin.getSymbol());
+                            mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
+                            mChange1h.setText(coin.getPercentChange1h() + " %");
+                            mChange24h.setText(coin.getPercentChange24h() + " %");
+                            mChange7d.setText(coin.getPercentChange7d() + " %");
+                            mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
+                            mVolume.setText(formatter.format(coin.getVolume24()));
+                            mSearch.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    searchCoin(coin.getName());
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
+
     }
 
-        // Called when the user taps the search icon
-        public void searchCoin(String name) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + name));
-            startActivity(intent);
-        }
+    // Called when the user taps the search icon
+    public void searchCoin(String name) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + name));
+        startActivity(intent);
+    }
 }

@@ -3,6 +3,7 @@ package au.edu.unsw.infs3634.cryptoprofile;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +19,9 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
+import au.edu.unsw.infs3634.cryptoprofile.DB.CoinDatabase;
 import au.edu.unsw.infs3634.cryptoprofile.api.Coin;
 import au.edu.unsw.infs3634.cryptoprofile.api.CoinLoreResponse;
 import au.edu.unsw.infs3634.cryptoprofile.api.CoinService;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewInter
     private RecyclerView recyclerView;
     private CoinAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private CoinDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,21 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewInter
         // Create an adapter instance with an empty ArrayList of Coin objects
         adapter = new CoinAdapter(new ArrayList<Coin>(), this);
 
+        // Instantiate a CoinDatabase object
+        mDb = Room.databaseBuilder(getApplicationContext(), CoinDatabase.class, "coin-database").build();
+        // Create an asynchronous database call using Java Runnable to
+        // get the list of coins from the database
+        // Set the adapter using the result
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Coin> coins = (ArrayList<Coin>) mDb.coinDao().getCoins();
+                adapter.setData(coins);
+                adapter.sort(CoinAdapter.SORT_METHOD_NAME);
+            }
+        });
+
+
         // Implement Retrofit to make API call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.coinlore.net") // Set the base URL
@@ -65,6 +84,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewInter
             public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
                 Log.d(TAG, "API call successful!");
                 List<Coin> coins = response.body().getData();
+
+                // Create an asynchronous database call using Java Runnable to:
+                // Delete all rows currently in the database
+                // Add all rows from API call result into the database
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.coinDao().deleteAll(mDb.coinDao().getCoins().toArray(new Coin[0]));
+                        mDb.coinDao().insertAll(coins.toArray(new Coin[0]));
+                    }
+                });
+
                 // Supply data to the adapter to be displayed
                 adapter.setData((ArrayList)coins);
                 adapter.sort(CoinAdapter.SORT_METHOD_VALUE);

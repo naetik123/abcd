@@ -54,7 +54,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
                 .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
                 .fitCenter()
                 .into(holder.image);
-        holder.itemView.setTag(coin.getId());
+        holder.itemView.setTag(coin.getSymbol());
     }
 
     @Override
