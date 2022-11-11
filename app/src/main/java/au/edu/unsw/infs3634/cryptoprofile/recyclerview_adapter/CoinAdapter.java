@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +50,10 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
         holder.name.setText(coin.getName());
         holder.change.setText(coin.getPercentChange1h() + " %");
         holder.value.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
+        Glide.with(holder.itemView)
+                .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
+                .fitCenter()
+                .into(holder.image);
         holder.itemView.setTag(coin.getId());
     }
 
@@ -93,7 +99,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
         TextView name, change, value;
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
-            image = itemView.findViewById(R.id.ivImage);
+            image = itemView.findViewById(R.id.ivArt);
             name = itemView.findViewById(R.id.tvName);
             change = itemView.findViewById(R.id.tvChange);
             value = itemView.findViewById(R.id.tvValue);
