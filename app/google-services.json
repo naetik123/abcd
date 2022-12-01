@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "779204220260",
+    "project_id": "cryptoprofile-7802b",
+    "storage_bucket": "cryptoprofile-7802b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779204220260:android:2a7b8357e1c46668ee1671",
+        "android_client_info": {
+          "package_name": "au.edu.unsw.infs3634.cryptoprofile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779204220260-6l76uqmuig3add0fcs0sttmc6rfgcurp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC_potSU_RjZLNcm1WxedKqP6i3cYJ9jI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "779204220260-6l76uqmuig3add0fcs0sttmc6rfgcurp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

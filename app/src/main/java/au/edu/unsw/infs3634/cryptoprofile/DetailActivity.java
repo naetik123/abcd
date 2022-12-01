@@ -1,5 +1,6 @@
 package au.edu.unsw.infs3634.cryptoprofile;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -8,10 +9,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+<<<<<<< Updated upstream
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+=======
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+>>>>>>> Stashed changes
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -37,8 +53,14 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mChange7d;
     private TextView mMarketcap;
     private TextView mVolume;
+<<<<<<< Updated upstream
     private ImageView mSearch, mArt;
     private CoinDatabase mDb;
+=======
+    private ImageView mSearch;
+    private CheckBox cbCoin;
+
+>>>>>>> Stashed changes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +77,12 @@ public class DetailActivity extends AppCompatActivity {
         mMarketcap = findViewById(R.id.tvMarketcapField);
         mVolume = findViewById(R.id.tvVolumeField);
         mSearch = findViewById(R.id.ivSearch);
+<<<<<<< Updated upstream
         mArt = findViewById(R.id.ivImage);
 
+=======
+        cbCoin = findViewById(R.id.cbCoin);
+>>>>>>> Stashed changes
         // Get the intent that started this activity and extract the string
         Intent intent = getIntent();
         if (intent.hasExtra(INTENT_MESSAGE)) {
@@ -102,7 +128,46 @@ public class DetailActivity extends AppCompatActivity {
                 }
             });
         }
+<<<<<<< Updated upstream
 
+=======
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference messageRef =database.getReference(FirebaseAuth.getInstance().getUid());
+
+        messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String result = (String) snapshot.getValue();
+
+                if {
+                    (result != null && result.equals(Coin.getSymbol()));
+                    cbCoin.setChecked(true);
+                }
+            }
+            else {
+                cbCoin.setChecked(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            System.out.println(error);
+            }
+        });
+        cbCoin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                DatabaseReference messageRef = database.getReference(FirebaseAuth.getInstance().getUid());
+                if (b) {
+
+                    messageRef.setValue((Coin.getSymbol()));
+                }
+                else{
+                    messageRef.setValue("");
+                }
+
+            }
+        });
+>>>>>>> Stashed changes
     }
 
     // Called when the user taps the search icon
